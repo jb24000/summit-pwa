@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1B2A5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Summit Tracker">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Summit Business Services — Growth Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F0F2F5;color:#374151;min-height:100vh;padding:20px}
+:root{--navy:#1B2A5C;--gold:#C9A84C;--gold-bg:#FBF3DC;--green:#15803D;--green-bg:#F0FDF4}
+.container{max-width:760px;margin:0 auto}
+.header{background:var(--navy);border-radius:12px 12px 0 0;padding:20px 24px 16px}
+.header-brand{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+.header-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:3px}
+.header-sub{font-size:11px;color:#94A3B8}
+.save-badge{font-size:11px;color:#4ADE80;background:rgba(74,222,128,.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(74,222,128,.3);opacity:0;transition:opacity .3s}
+.save-badge.show{opacity:1}
+.model-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.model-card{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:8px 10px;text-align:center}
+.model-card .val{font-size:16px;font-weight:700;color:var(--gold)}
+.model-card .lbl{font-size:10px;color:#94A3B8;margin-top:2px}
+.overall-box{background:rgba(255,255,255,.08);border-radius:8px;padding:12px 16px;margin-top:14px}
+.overall-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:600;color:#CBD5E1}
+.overall-row span:last-child{color:var(--gold);font-weight:700}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat-box{background:rgba(255,255,255,.07);border-radius:6px;padding:8px 10px}
+.stat-box .slbl{font-size:10px;color:#94A3B8;margin-bottom:3px}
+.stat-box .sval{font-size:16px;font-weight:700;color:#fff}
+.stat-box .sval span{font-size:11px;color:#64748B}
+.pbar-track{background:#E5E7EB;border-radius:99px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:99px;transition:width .4s ease;background:var(--gold)}
+.tabs{display:flex;background:#F1F5F9;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0}
+.tab-btn{flex:1;padding:12px 16px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#6B7280;border-bottom:3px solid transparent;transition:all .15s;font-family:inherit}
+.tab-btn.active{background:#fff;color:var(--navy);border-bottom-color:var(--gold)}
+.content{border:1px solid #E2E8F0;border-top:none;border-radius:0 0 12px 12px;padding:20px 20px 24px;background:#FAFAFA}
+.section-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.lt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.lt-count{font-size:12px;color:#6B7280}
+.lt-table{border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;margin-top:10px;margin-bottom:24px}
+.lt-thead{display:grid;grid-template-columns:1fr 115px;background:#F9FAFB;padding:8px 14px;border-bottom:1px solid #E5E7EB}
+.lt-thead span{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em}
+.lt-thead span:last-child{text-align:center}
+.lt-row{display:grid;grid-template-columns:1fr 115px;padding:10px 14px;align-items:center;border-bottom:1px solid #F3F4F6;background:#fff;transition:background .15s}
+.lt-row:last-child{border-bottom:none}
+.lt-row.complete{background:var(--green-bg)}
+.lt-cell{display:flex;align-items:center;gap:10px}
+.lt-text{font-size:13px;color:#374151}
+.lt-text.done{text-decoration:line-through;text-decoration-color:#9CA3AF}
+.lt-status{display:flex;justify-content:center}
+.week-block{margin-bottom:12px;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;transition:border-color .2s}
+.week-block.open{border-color:var(--gold)}
+.week-btn{width:100%;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border:none;cursor:pointer;text-align:left;transition:background .15s}
+.week-block.open .week-btn{background:var(--gold-bg)}
+.week-arrow{font-size:10px;color:var(--navy);font-weight:700;transition:transform .2s;flex-shrink:0}
+.week-block.open .week-arrow{transform:rotate(90deg)}
+.week-info{flex:1}
+.week-name{font-size:14px;font-weight:700;color:var(--navy)}
+.week-sub{font-size:11px;color:#6B7280;margin-top:1px}
+.week-pct{text-align:right;margin-right:12px;flex-shrink:0}
+.week-pct .p{font-size:13px;font-weight:700;color:var(--navy)}
+.week-pct .c{font-size:11px;color:#9CA3AF}
+.week-bar{width:80px;flex-shrink:0}
+.week-body{padding:12px 18px 16px;background:#fff;display:none}
+.week-block.open .week-body{display:block}
+.day-block{margin-bottom:8px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden}
+.day-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:none;cursor:pointer;text-align:left}
+.day-block.open .day-btn{background:#FAFAFA}
+.day-arrow{font-size:10px;color:var(--navy);font-weight:700;transition:transform .2s;flex-shrink:0}
+.day-block.open .day-arrow{transform:rotate(90deg)}
+.day-name{flex:1;font-size:13px;font-weight:600;color:#1F2937}
+.day-count{font-size:12px;color:#6B7280;margin-right:8px;flex-shrink:0}
+.day-bar{width:60px;flex-shrink:0}
+.day-body{padding:4px 14px 8px;background:#fff;display:none}
+.day-block.open .day-body{display:block}
+.task-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #F3F4F6;transition:opacity .15s}
+.task-row:last-child{border-bottom:none}
+.task-row.done{opacity:.5}
+.task-text{font-size:13px;line-height:1.5;color:#374151;flex:1}
+.task-text.struck{text-decoration:line-through;text-decoration-color:#9CA3AF}
+.cat-badge{font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 7px;border-radius:99px;flex-shrink:0;margin-top:2px}
+.cat-LEGAL{background:#F3F0FF;color:#6D28D9}
+.cat-SYSTEMS{background:#EFF6FF;color:#1D4ED8}
+.cat-CLEANUP{background:#FEF9C3;color:#A16207}
+.cat-MARKETING{background:#FFF7ED;color:#C2410C}
+.cat-REVENUE{background:#F0FDFA;color:#0F766E}
+.cat-ACCT{background:#FBF3DC;color:#92400E}
+.cb{width:20px;height:20px;border-radius:4px;border:2px solid #D1D5DB;background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;appearance:none;-webkit-appearance:none}
+.cb.checked{background:var(--gold);border-color:var(--gold)}
+.cb.checked::after{content:'';display:block;width:10px;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6L5 9L10 3' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat}
+.status-sel{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;cursor:pointer;outline:none;border:1px solid;font-family:inherit;appearance:none;-webkit-appearance:none;min-width:95px;text-align:center}
+.st-Pending{background:#F3F4F6;color:#6B7280;border-color:#D1D5DB}
+.st-In-Progress{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.st-Complete{background:#F0FDF4;color:#15803D;border-color:#BBF7D0}
+.st-Deferred{background:#FFF7ED;color:#C2410C;border-color:#FED7AA}
+.phase-block{margin-bottom:12px;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;transition:border-color .2s}
+.phase-btn{width:100%;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border:none;cursor:pointer;text-align:left;transition:background .15s}
+.phase-arrow{font-size:10px;font-weight:700;transition:transform .2s;flex-shrink:0}
+.phase-block.open .phase-arrow{transform:rotate(90deg)}
+.phase-body{padding:12px 18px 16px;background:#fff;display:none}
+.phase-block.open .phase-body{display:block}
+.phase-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;margin-top:10px}
+.phase-section-label:first-child{margin-top:0}
+.phase-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #F3F4F6;transition:opacity .15s}
+.phase-item:last-child{border-bottom:none}
+.phase-item.done{opacity:.5}
+.phase-text{font-size:13px;color:#374151;line-height:1.5}
+.phase-text.struck{text-decoration:line-through;text-decoration-color:#9CA3AF}
+.roadmap-note{margin-bottom:18px;padding:12px 16px;background:var(--gold-bg);border-radius:8px;border:1px solid rgba(201,168,76,.2);font-size:13px;color:#78350F;line-height:1.6}
+.mrr-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.mrr-table th{padding:8px 10px;color:var(--gold);font-weight:700;text-align:center;background:var(--navy);border:1px solid var(--navy)}
+.mrr-table td{padding:8px 10px;text-align:center;border:1px solid #E5E7EB}
+.mrr-table td.v{font-weight:700;color:var(--navy)}
+.mrr-table td.s{font-size:10px;color:#6B7280}
+.mrr-table tr:nth-child(odd) td{background:#fff}
+.mrr-table tr:nth-child(even) td{background:#F8FAFC}
+.mrr-title{font-size:13px;font-weight:700;color:var(--navy);margin:20px 0 8px}
+#installBanner{display:none;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#78350F;align-items:center;gap:10px}
+#installBanner button{background:var(--navy);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="installBanner">
+  <span style="flex:1">📲 Install Summit Tracker as an app on this device</span>
+  <button id="installBtn">Install</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:transparent;color:#92400E;border:1px solid #C9A84C;padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">Dismiss</button>
+</div>
+
+<div class="header">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <div class="header-brand">Summit Capital Holdings LLC &nbsp;•&nbsp; dba Summit Business Services</div>
+      <div class="header-title">Bookkeeping Cleanup &amp; Growth Tracker</div>
+      <div class="header-sub">Cleanup + Monthly Bookkeeping &nbsp;•&nbsp; $500/client/mo &nbsp;•&nbsp; 4 hrs/client &nbsp;•&nbsp; $125/hr effective rate</div>
+    </div>
+    <div class="save-badge" id="saveBadge">✓ Saved</div>
+  </div>
+  <div class="model-grid">
+    <div class="model-card"><div class="val">$500/mo</div><div class="lbl">target retainer</div></div>
+    <div class="model-card"><div class="val">~4 hrs</div><div class="lbl">hrs per client</div></div>
+    <div class="model-card"><div class="val">$125/hr</div><div class="lbl">effective rate</div></div>
+    <div class="model-card"><div class="val">$5K MRR</div><div class="lbl">at 10 clients</div></div>
+  </div>
+  <div class="overall-box">
+    <div class="overall-row"><span>Overall progress</span><span id="overallLabel">0% · 0/0</span></div>
+    <div class="pbar-track" style="height:8px"><div class="pbar-fill" id="overallBar" style="width:0%"></div></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="slbl">Launch targets</div><div class="sval" id="statLT">0<span>/10</span></div></div>
+    <div class="stat-box"><div class="slbl">Daily tasks</div><div class="sval" id="statDT">0<span id="statDTTotal">/0</span></div></div>
+    <div class="stat-box"><div class="slbl">Milestones</div><div class="sval" id="statMT">0<span id="statMTTotal">/0</span></div></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('launch')">30-Day launch</button>
+  <button class="tab-btn" onclick="switchTab('roadmap')">Long-term roadmap</button>
+</div>
+<div class="content">
+  <div id="tabLaunch"></div>
+  <div id="tabRoadmap" style="display:none"></div>
+</div>
+</div>
+
+<script>
+const NAVY='#1B2A5C',GOLD='#C9A84C';
+const LAUNCH_TARGETS=[
+  {id:'lt-1',text:'DBA filed + branded email live',init:'Pending'},
+  {id:'lt-2',text:'Relay banking structure configured',init:'Complete'},
+  {id:'lt-3',text:'QBO ProAdvisor Certification completed',init:'Pending'},
+  {id:'lt-4',text:'Website + Google Business Profile live',init:'Pending'},
+  {id:'lt-5',text:'E&O insurance bound',init:'Pending'},
+  {id:'lt-6',text:'Engagement letter + cleanup contract loaded in DocuSign',init:'Pending'},
+  {id:'lt-7',text:'Cleanup intake form + client onboarding workflow built',init:'Pending'},
+  {id:'lt-8',text:'3 bookkeeping/cleanup clients signed',init:'Pending'},
+  {id:'lt-9',text:'First cleanup project delivered',init:'Pending'},
+  {id:'lt-10',text:'$1,500+ MRR achieved',init:'Pending'},
+];
+const WEEKS=[
+  {id:'w1',title:'Week 1 — Legal, banking & brand foundation',sub:'Days 1–7',days:[
+    {id:'d1',title:'Day 1 — Monday: Legal & registration',tasks:[
+      {id:'d1-1',text:'File DBA \'Summit Business Services\' with Durham County Register of Deeds (~$26)',cat:'LEGAL'},
+      {id:'d1-2',text:'Confirm EIN is active for Summit Capital Group LLC — verify at IRS.gov',cat:'LEGAL'},
+      {id:'d1-3',text:'Download and save Certificate of Formation for Summit Capital Group LLC',cat:'LEGAL'},
+      {id:'d1-4',text:'Register domains: summitbusinessservices.com + summitcapitalgroup.com',cat:'LEGAL'},
+      {id:'d1-5',text:'Set up Google Workspace using your new domain ($6/mo) for branded email',cat:'SYSTEMS'},
+      {id:'d1-6',text:'Create primary email: melvin@summitbusinessservices.com',cat:'SYSTEMS'},
+      {id:'d1-7',text:'Create secondary: info@summitbusinessservices.com',cat:'SYSTEMS'},
+      {id:'d1-8',text:'Get quotes for E&O insurance from Hiscox and Next Insurance — target: bind by Day 5',cat:'LEGAL'},
+    ]},
+    {id:'d2',title:'Day 2 — Tuesday: Relay banking configuration',tasks:[
+      {id:'d2-1',text:'Configure Relay account structure for Summit Business Services operations',cat:'ACCT'},
+      {id:'d2-2',text:'Set up 3 sub-accounts: Operating/Revenue, Tax Reserve 25%, Owner Draw',cat:'ACCT'},
+      {id:'d2-3',text:'Set auto-transfer rule: 25% of every deposit to Tax Reserve',cat:'ACCT'},
+      {id:'d2-4',text:'Set auto-transfer rule: 10% of every deposit to Owner Draw',cat:'ACCT'},
+      {id:'d2-5',text:'Order Summit Business Services branded debit card from Relay',cat:'ACCT'},
+      {id:'d2-6',text:'Connect Relay to QBO bank feed once QBO is set up on Day 3',cat:'ACCT'},
+      {id:'d2-7',text:'Document your Relay account structure in a one-page internal reference sheet',cat:'ACCT'},
+      {id:'d2-8',text:'Set up Relay notifications for all incoming deposits and outgoing payments',cat:'ACCT'},
+    ]},
+    {id:'d3',title:'Day 3 — Wednesday: Core software stack',tasks:[
+      {id:'d3-1',text:'Sign up for QuickBooks Online Accountant — free firm account',cat:'SYSTEMS'},
+      {id:'d3-2',text:'Set up QBO firm profile with Summit Business Services name, logo, and contact info',cat:'SYSTEMS'},
+      {id:'d3-3',text:'Enroll in QuickBooks ProAdvisor certification — begin first modules today',cat:'SYSTEMS'},
+      {id:'d3-4',text:'Sign up for Financial Cents practice management — 14-day free trial',cat:'SYSTEMS'},
+      {id:'d3-5',text:'Sign up for Dext or Hubdoc for client document capture — 30-day free trial',cat:'SYSTEMS'},
+      {id:'d3-6',text:'Set up Google Drive folder structure: /Clients, /Templates, /Contracts, /Cleanup-Projects, /SOPs',cat:'SYSTEMS'},
+      {id:'d3-7',text:'Create cleanup project folder template: /Client-Name/Cleanup/Month-by-Month',cat:'CLEANUP'},
+    ]},
+    {id:'d4',title:'Day 4 — Thursday: Brand & visual identity',tasks:[
+      {id:'d4-1',text:'Brief a logo designer on Fiverr or 99designs — budget $150–$300 for wordmark',cat:'MARKETING'},
+      {id:'d4-2',text:'Brief: navy + gold palette, clean wordmark, professional financial services feel',cat:'MARKETING'},
+      {id:'d4-3',text:'Set up Canva Pro ($13/mo) for marketing materials while logo is in progress',cat:'MARKETING'},
+      {id:'d4-4',text:'Create LinkedIn Company Page for Summit Business Services',cat:'MARKETING'},
+      {id:'d4-5',text:'Update personal LinkedIn headline: VP & CFP | Founder, Summit Business Services | Bookkeeping Cleanup & Monthly Financials',cat:'MARKETING'},
+      {id:'d4-6',text:"Draft company tagline — suggested: 'Clean Books. Clear Numbers. Every Month.'",cat:'MARKETING'},
+      {id:'d4-7',text:'Create professional email signature: name, title, phone, website, LinkedIn, CFP designation',cat:'MARKETING'},
+      {id:'d4-8',text:'Take or update a professional headshot for LinkedIn and website',cat:'MARKETING'},
+    ]},
+    {id:'d5',title:'Day 5 — Friday: Contracts & legal templates',tasks:[
+      {id:'d5-1',text:'Bind E&O insurance policy — do not take on paying clients without this',cat:'LEGAL'},
+      {id:'d5-2',text:'Draft Bookkeeping Cleanup Engagement Letter: scope, flat fee, deliverables, timeline',cat:'LEGAL'},
+      {id:'d5-3',text:'Draft Ongoing Bookkeeping Agreement: monthly scope, fee, payment terms, termination clause, liability limits',cat:'LEGAL'},
+      {id:'d5-4',text:'Draft cleanup-to-retainer transition addendum: automatic rollover language upon cleanup completion',cat:'LEGAL'},
+      {id:'d5-5',text:'Sign up for DocuSign or PandaDoc ($25/mo) — load all templates as reusable documents',cat:'SYSTEMS'},
+      {id:'d5-6',text:'Create Client Intake Form: business name, entity type, industry, current software, months behind, bank accounts',cat:'SYSTEMS'},
+      {id:'d5-7',text:'Build Google Form or Typeform for digital client intake',cat:'SYSTEMS'},
+    ]},
+    {id:'d67',title:'Day 6–7 — Weekend: Website & online presence',tasks:[
+      {id:'d67-1',text:'Build landing page website on Squarespace or WordPress — target: live by Day 10',cat:'MARKETING'},
+      {id:'d67-2',text:"Homepage headline: 'Behind on your books? We fix that — then keep them clean every month.'",cat:'MARKETING'},
+      {id:'d67-3',text:'Create service pages: /cleanup, /ongoing-bookkeeping, /about, /contact',cat:'MARKETING'},
+      {id:'d67-4',text:'Set up Google Business Profile for Summit Business Services',cat:'MARKETING'},
+      {id:'d67-5',text:'Write About bio — lead with CFP credential, VP banking background, active business owner experience',cat:'MARKETING'},
+      {id:'d67-6',text:'Set up Calendly for free 30-min discovery call — embed on contact page',cat:'SYSTEMS'},
+      {id:'d67-7',text:'Draft discovery call script: months behind, current software, transaction volume, # of bank accounts',cat:'SYSTEMS'},
+      {id:'d67-8',text:'Create post-discovery follow-up email template with cleanup proposal attached',cat:'MARKETING'},
+    ]},
+  ]},
+  {id:'w2',title:'Week 2 — Pricing, cleanup systems & certifications',sub:'Days 8–14',days:[
+    {id:'d8',title:'Day 8 — Monday: Service menu & pricing',tasks:[
+      {id:'d8-1',text:'Finalize Starter: $400–$500/mo — up to 6 months backlog, ongoing books, P&L + balance sheet',cat:'REVENUE'},
+      {id:'d8-2',text:'Finalize Standard: $500–$600/mo — 7–18 months backlog, monthly books + basic reporting',cat:'REVENUE'},
+      {id:'d8-3',text:'Finalize Premium: $600–$800/mo — 18+ months or complex books, full cleanup report + KPI reporting',cat:'REVENUE'},
+      {id:'d8-4',text:'Finalize One-Time Cleanup Project: $500–$1,500 flat fee, transitions to retainer on completion',cat:'REVENUE'},
+      {id:'d8-5',text:'Build cleanup pricing calculator: months behind x avg transactions → estimate hours → flat fee',cat:'CLEANUP'},
+      {id:'d8-6',text:'Create 1-page branded PDF service menu — cleanup focus, no payroll, no tax',cat:'MARKETING'},
+      {id:'d8-7',text:'Build proposal template in PandaDoc — cleanup scope, flat fee, transition language, e-signature',cat:'SYSTEMS'},
+      {id:'d8-8',text:'Set billing terms: cleanup fee due at engagement start; monthly retainer auto-billed on the 1st',cat:'ACCT'},
+    ]},
+    {id:'d9',title:'Day 9 — Tuesday: Cleanup workflow build-out',tasks:[
+      {id:'d9-1',text:'Build Cleanup Project Checklist in Financial Cents: intake → QBO access → bank feed → month-by-month reconciliation → final review → cleanup report',cat:'CLEANUP'},
+      {id:'d9-2',text:'Build cleanup month-by-month tracking sheet in Google Sheets: month, transactions, reconciled Y/N, issues found, resolved Y/N',cat:'CLEANUP'},
+      {id:'d9-3',text:'Document cleanup discovery process: assess backlog severity, quote turnaround time, identify red flags',cat:'CLEANUP'},
+      {id:'d9-4',text:'Write Cleanup Delivery SOP: month-by-month reconciliation report, corrected P&L, balance sheet, issues summary',cat:'CLEANUP'},
+      {id:'d9-5',text:'Create Cleanup Red Flags Checklist: missing bank statements, cash transactions, multiple entities, loans not on books',cat:'CLEANUP'},
+      {id:'d9-6',text:'Build cleanup-to-retainer transition template: kickoff email, scope confirmation, first monthly deliverable date',cat:'CLEANUP'},
+      {id:'d9-7',text:"Review QBO's reclassification tools, bank rule engine, and reconciliation workflow",cat:'SYSTEMS'},
+    ]},
+    {id:'d10',title:'Day 10 — Wednesday: QBO certification push',tasks:[
+      {id:'d10-1',text:'Block entire day — complete all remaining QBO ProAdvisor certification modules',cat:'SYSTEMS'},
+      {id:'d10-2',text:'Take and pass the QBO ProAdvisor exam (80% required passing score)',cat:'SYSTEMS'},
+      {id:'d10-3',text:'Download certification badge and certificate',cat:'SYSTEMS'},
+      {id:'d10-4',text:'Add ProAdvisor badge to website and LinkedIn profile',cat:'MARKETING'},
+      {id:'d10-5',text:'Claim and complete listing on QuickBooks Find-a-ProAdvisor directory — specialty: bookkeeping cleanup',cat:'MARKETING'},
+      {id:'d10-6',text:'Website should be live today — test all pages, forms, and Calendly links',cat:'MARKETING'},
+    ]},
+    {id:'d11',title:'Day 11 — Thursday: Client onboarding workflows',tasks:[
+      {id:'d11-1',text:'Build Cleanup Onboarding Checklist: signed contract, upfront payment, QBO access, bank statements, intake form',cat:'SYSTEMS'},
+      {id:'d11-2',text:'Build Ongoing Bookkeeping Onboarding Checklist: QBO file set up, bank feeds connected, recurring task schedule',cat:'SYSTEMS'},
+      {id:'d11-3',text:'Create Cleanup Welcome Packet: timeline, what you need from them, how issues are communicated',cat:'CLEANUP'},
+      {id:'d11-4',text:'Create Ongoing Bookkeeping Welcome Packet: monthly deliverables, deadlines, document submission, communication policy',cat:'SYSTEMS'},
+      {id:'d11-5',text:'Set up recurring task templates in Financial Cents for monthly bookkeeping close cycle',cat:'SYSTEMS'},
+      {id:'d11-6',text:'Create monthly delivery template: P&L, balance sheet, plain-English narrative, action items',cat:'ACCT'},
+      {id:'d11-7',text:'Write discovery call script — cleanup version: focus on pain (how far behind, what has been missed)',cat:'SYSTEMS'},
+    ]},
+    {id:'d12',title:'Day 12 — Friday: Capabilities deck & collateral',tasks:[
+      {id:'d12-1',text:'Build Capabilities Deck (5–6 slides) in Canva — cleanup focused',cat:'MARKETING'},
+      {id:'d12-2',text:"Slide 1: Cover — logo, tagline 'Clean Books. Clear Numbers. Every Month.'",cat:'MARKETING'},
+      {id:'d12-3',text:'Slide 2: Who we serve — service business owners behind on their books',cat:'MARKETING'},
+      {id:'d12-4',text:'Slide 3: The cleanup process — what we do, timeline, what client receives',cat:'MARKETING'},
+      {id:'d12-5',text:'Slide 4: Ongoing bookkeeping packages and pricing tiers',cat:'MARKETING'},
+      {id:'d12-6',text:'Slide 5: Your credentials — CFP, VP Banking, active business owner, QBO ProAdvisor',cat:'MARKETING'},
+      {id:'d12-7',text:'Slide 6: How to get started — Calendly link, contact info; Export PDF',cat:'MARKETING'},
+    ]},
+    {id:'d1314',title:'Day 13–14 — Weekend: Prospect list & outreach prep',tasks:[
+      {id:'d1314-1',text:'Build target prospect list of 50 service businesses in Durham, RTP, Eastern NC',cat:'REVENUE'},
+      {id:'d1314-2',text:'Sources: Google Maps, Yelp, BBB — look for businesses 2–5 years old (likely have messy books)',cat:'REVENUE'},
+      {id:'d1314-3',text:'Capture: business name, owner name, phone, email, years in business, estimated employee count',cat:'REVENUE'},
+      {id:'d1314-4',text:'Identify 15 warm contacts in your SECU and RE investor networks who own businesses',cat:'REVENUE'},
+      {id:'d1314-5',text:'Identify 5 CPAs in your area — they refer clients with messy books they do not want to deal with',cat:'REVENUE'},
+      {id:'d1314-6',text:"Draft cold outreach email: lead with pain — 'Is your business behind on its books? We specialize in cleanup.'",cat:'MARKETING'},
+      {id:'d1314-7',text:'Draft warm outreach script — focus on cleanup pain, not general bookkeeping services',cat:'MARKETING'},
+    ]},
+  ]},
+  {id:'w3',title:'Week 3 — Active outreach & first clients',sub:'Days 15–21',days:[
+    {id:'d15',title:'Day 15 — Monday: Warm outreach blitz',tasks:[
+      {id:'d15-1',text:'Send personalized outreach to all 15 warm contacts — text or personal email, never mass blast',cat:'REVENUE'},
+      {id:'d15-2',text:"Message: 'I just launched Summit Business Services — bookkeeping cleanup for service businesses. Know any owners behind on their books?'",cat:'REVENUE'},
+      {id:'d15-3',text:'Send Calendly link to every contact who expresses interest',cat:'REVENUE'},
+      {id:'d15-4',text:'Email 5 cold prospects using your intro email template',cat:'REVENUE'},
+      {id:'d15-5',text:"Post first LinkedIn content: '3 signs your service business books need a cleanup'",cat:'MARKETING'},
+      {id:'d15-6',text:'Call or email 2 CPAs — position as the cleanup specialist for their messy-book referrals',cat:'REVENUE'},
+      {id:'d15-7',text:'Add QBO ProAdvisor badge to email signature',cat:'MARKETING'},
+    ]},
+    {id:'d16',title:'Day 16 — Tuesday: Discovery calls & proposals',tasks:[
+      {id:'d16-1',text:'Conduct all discovery calls booked via Calendly — use your cleanup discovery script',cat:'REVENUE'},
+      {id:'d16-2',text:'Cleanup discovery: months behind → current software → bank accounts → transaction volume → quote on the call',cat:'CLEANUP'},
+      {id:'d16-3',text:'Send cleanup proposals within 2 hours — flat fee, timeline, deliverables, retainer transition language',cat:'REVENUE'},
+      {id:'d16-4',text:'Continue cold email outreach — send to next batch of 10 prospects',cat:'REVENUE'},
+      {id:'d16-5',text:'Visit 3 local service businesses in person — introduce yourself, leave a capabilities deck',cat:'REVENUE'},
+      {id:'d16-6',text:"Post LinkedIn: 'What does a bookkeeping cleanup actually include?'",cat:'MARKETING'},
+    ]},
+    {id:'d17',title:'Day 17 — Wednesday: CPA partnership focus',tasks:[
+      {id:'d17-1',text:'Research BNI chapters in Durham/Raleigh — submit application (one bookkeeper per chapter)',cat:'MARKETING'},
+      {id:'d17-2',text:'Follow up on all pending proposals from Day 16 — call first, email second',cat:'REVENUE'},
+      {id:'d17-3',text:'Draft CPA referral partnership one-pager: what you do, who you serve, your credentials',cat:'REVENUE'},
+      {id:'d17-4',text:'Email 3 more CPAs with your one-pager',cat:'REVENUE'},
+      {id:'d17-5',text:"Post LinkedIn: 'Why business owners wait too long to clean up their books'",cat:'MARKETING'},
+    ]},
+    {id:'d18',title:'Day 18 — Thursday: First client onboarding',tasks:[
+      {id:'d18-1',text:'For any signed cleanup clients: collect upfront fee, send Welcome Packet and Intake Form immediately',cat:'REVENUE'},
+      {id:'d18-2',text:'Set up client in Financial Cents — assign cleanup project checklist, set task schedule',cat:'SYSTEMS'},
+      {id:'d18-3',text:'Request QBO access or set up new QBO file; connect bank feeds',cat:'ACCT'},
+      {id:'d18-4',text:'Begin month-by-month cleanup — oldest months first, work forward chronologically',cat:'CLEANUP'},
+      {id:'d18-5',text:'Schedule kickoff call — set timeline expectations, what you need from them, when final report arrives',cat:'SYSTEMS'},
+      {id:'d18-6',text:'For any ongoing retainer clients: set up recurring task schedule, first deliverable date',cat:'ACCT'},
+      {id:'d18-7',text:'Continue outreach — send Day 2 follow-up email to first cold batch',cat:'REVENUE'},
+    ]},
+    {id:'d19',title:'Day 19 — Friday: Cleanup execution & SOPs',tasks:[
+      {id:'d19-1',text:'Execute cleanup work on active clients — reconcile month by month, document issues found',cat:'CLEANUP'},
+      {id:'d19-2',text:'Write your Cleanup Execution SOP: how to assess, where to start, how to handle missing statements',cat:'CLEANUP'},
+      {id:'d19-3',text:'Document your QBO bank rule strategy: how you build rules to auto-categorize recurring transactions',cat:'CLEANUP'},
+      {id:'d19-4',text:'Create a Cleanup Issues Log template: transaction date, account, issue type, resolution, client notification needed Y/N',cat:'CLEANUP'},
+      {id:'d19-5',text:"Post LinkedIn: 'I just cleaned up 14 months of books for a local HVAC company. Here is what we found.'",cat:'MARKETING'},
+    ]},
+    {id:'d2021',title:'Day 20–21 — Weekend: SOPs & process documentation',tasks:[
+      {id:'d2021-1',text:'Write your Bookkeeping Monthly Close SOP: accounts to reconcile, reports to generate, delivery checklist',cat:'SYSTEMS'},
+      {id:'d2021-2',text:'Write your Cleanup Delivery SOP: final cleanup report, how to present findings, transition to retainer',cat:'CLEANUP'},
+      {id:'d2021-3',text:'Write your Client Offboarding SOP: final reports, QBO access removal, file archiving, referral request',cat:'SYSTEMS'},
+      {id:'d2021-4',text:'Create your Quality Review Checklist — what you verify before sending any deliverable',cat:'SYSTEMS'},
+      {id:'d2021-5',text:'Review Week 3 pipeline — update prospect tracker, pending proposals, plan follow-ups for Week 4',cat:'REVENUE'},
+      {id:'d2021-6',text:'Review Relay balances — verify tax reserve is funding correctly',cat:'ACCT'},
+    ]},
+  ]},
+  {id:'w4',title:'Week 4 — Close, stabilize & set up Month 2',sub:'Days 22–30',days:[
+    {id:'d22',title:'Day 22 — Monday: Pipeline acceleration',tasks:[
+      {id:'d22-1',text:'Review every open proposal — hot (call today), warm (follow up this week), cold (re-engage Month 2)',cat:'REVENUE'},
+      {id:'d22-2',text:'Call every hot prospect — phone closes proposals faster than email, always',cat:'REVENUE'},
+      {id:'d22-3',text:'Send Day 3 follow-up to cold prospect email batch 1',cat:'REVENUE'},
+      {id:'d22-4',text:"Post LinkedIn: 'The difference between a bookkeeper and a financial partner'",cat:'MARKETING'},
+      {id:'d22-5',text:'Submit BNI chapter application if not already done',cat:'MARKETING'},
+      {id:'d22-6',text:'Reach out to 2 business attorneys about referral partnerships',cat:'REVENUE'},
+      {id:'d22-7',text:'Check QBO ProAdvisor directory listing — verify you appear in Durham/Raleigh area searches',cat:'MARKETING'},
+    ]},
+    {id:'d2324',title:'Day 23–24 — Tue & Wed: Cleanup delivery & client delivery',tasks:[
+      {id:'d2324-1',text:'Complete and deliver cleanup reports: final reconciliation, corrected P&L, balance sheet, issues summary',cat:'CLEANUP'},
+      {id:'d2324-2',text:'Schedule cleanup debrief call — walk through findings, confirm transition to ongoing retainer',cat:'CLEANUP'},
+      {id:'d2324-3',text:'Complete first monthly bookkeeping deliverables for any active ongoing retainer clients',cat:'ACCT'},
+      {id:'d2324-4',text:'Send client financial package with plain-English narrative explaining key takeaways',cat:'ACCT'},
+      {id:'d2324-5',text:'Schedule brief monthly review call with each retainer client — 15–20 minutes',cat:'REVENUE'},
+      {id:'d2324-6',text:'Continue proposal follow-ups and new prospect outreach',cat:'REVENUE'},
+    ]},
+    {id:'d25',title:'Day 25 — Thursday: Capacity planning',tasks:[
+      {id:'d25-1',text:'Map out your weekly time budget: 10–12 clients x 4 hrs = 40–48 hrs/month',cat:'SYSTEMS'},
+      {id:'d25-2',text:'Define your capacity limit: maximum clients you can serve alone at current service quality',cat:'SYSTEMS'},
+      {id:'d25-3',text:"Define the hiring trigger: 'When I hit [X] clients, I hire a part-time QBO contractor.'",cat:'SYSTEMS'},
+      {id:'d25-4',text:'Review your Financial Cents workflow — are all client tasks on track?',cat:'SYSTEMS'},
+      {id:'d25-5',text:'Identify which cleanup tasks are most time-consuming and could be delegated first',cat:'CLEANUP'},
+      {id:'d25-6',text:'Review cleanup pipeline — how many potential cleanup-to-retainer conversions are in progress?',cat:'CLEANUP'},
+    ]},
+    {id:'d26',title:'Day 26 — Friday: Financial review & Month 2 planning',tasks:[
+      {id:'d26-1',text:'Run your own P&L in QBO for Summit Business Services — first internal financial review',cat:'ACCT'},
+      {id:'d26-2',text:'Review Relay account balances — confirm tax reserve funded at 25% of total revenue',cat:'ACCT'},
+      {id:'d26-3',text:'Calculate current MRR (retainer clients) + project revenue (cleanup fees) separately',cat:'ACCT'},
+      {id:'d26-4',text:'Calculate cleanup pipeline value — how many months of cleanup fees are in proposals outstanding?',cat:'ACCT'},
+      {id:'d26-5',text:'Set Month 2 MRR target: $1,500–$2,500 (3–5 retainer clients)',cat:'ACCT'},
+      {id:'d26-6',text:'Set Month 2 cleanup goal: 2 more cleanup projects initiated',cat:'CLEANUP'},
+      {id:'d26-7',text:'Update your 30-60-90 day plan based on what you have learned this month',cat:'SYSTEMS'},
+    ]},
+    {id:'d2730',title:'Day 27–30 — Close-out: Review, refine & relaunch',tasks:[
+      {id:'d2730-1',text:'Complete 30-day debrief: what worked, what stalled, what surprised you — document in writing',cat:'SYSTEMS'},
+      {id:'d2730-2',text:'Review every checklist item in this plan — mark completed, in-progress, or deferred',cat:'SYSTEMS'},
+      {id:'d2730-3',text:'Request Google Reviews from any satisfied clients — cleanup completions are the best time to ask',cat:'MARKETING'},
+      {id:'d2730-4',text:"Write your Month 2 launch LinkedIn post: '30 days in. Here is what I learned.'",cat:'MARKETING'},
+      {id:'d2730-5',text:'Review all SOPs — are they detailed enough to hand to a contractor?',cat:'SYSTEMS'},
+      {id:'d2730-6',text:'Schedule your first quarterly estimated tax payment. Verify your own SE tax calculation.',cat:'ACCT'},
+      {id:'d2730-7',text:'Set Week 1 Month 2 priorities — write your action plan for Days 31–37 before Day 30 ends',cat:'SYSTEMS'},
+      {id:'d2730-8',text:'Rest, reflect, and prepare. The foundation is built. Now scale it.',cat:'SYSTEMS'},
+    ]},
+  ]},
+];
+const PHASES=[
+  {id:'ph1',title:'Phase 1 — Months 1–6',sub:'Bookkeeping cleanup domination',color:'#0F766E',light:'#F0FDFA',sections:[
+    {label:'Revenue goals',items:[
+      {id:'p1-r1',text:'End of Month 3: $1,500–$2,500 MRR — 3–5 retainer clients + cleanup project fees'},
+      {id:'p1-r2',text:'End of Month 6: $2,500–$4,000 MRR — 5–8 retainer clients, cleanup pipeline active'},
+      {id:'p1-r3',text:'Cleanup project fees: $500–$1,500 per engagement — separate from MRR'},
+      {id:'p1-r4',text:'Cleanup-to-retainer conversion rate: target 80%+ of cleanup clients transition to retainer'},
+    ]},
+    {label:'Service milestones',items:[
+      {id:'p1-s1',text:'Month 1: First 3 cleanup engagements signed and in progress'},
+      {id:'p1-s2',text:'Month 2: First cleanup deliveries complete, clients transitioned to retainer'},
+      {id:'p1-s3',text:'Month 3: Cleanup workflow fully documented and repeatable'},
+      {id:'p1-s4',text:'Month 4: QBO Advanced certification completed'},
+      {id:'p1-s5',text:'Month 5: CPA referral network generating at least 1 lead/month'},
+      {id:'p1-s6',text:'Month 6: All SOPs complete, Financial Cents workflows fully built'},
+    ]},
+    {label:'Operating rules',items:[
+      {id:'p1-t1',text:'Software stack: QBO Accountant, Financial Cents, Dext, DocuSign, Relay, Canva — nothing else'},
+      {id:'p1-t2',text:'No contractor yet — build the process first, delegate second'},
+      {id:'p1-t3',text:'Month 6: Evaluate hiring trigger — if at capacity, define contractor role'},
+      {id:'p1-t4',text:'No payroll services. No tax prep. No scope creep. Bookkeeping cleanup only.'},
+    ]},
+  ]},
+  {id:'ph2',title:'Phase 2 — Months 7–12',sub:'Scale the cleanup pipeline & build retention',color:'#1D4ED8',light:'#EFF6FF',sections:[
+    {label:'Revenue goals',items:[
+      {id:'p2-r1',text:'End of Month 9: $4,000–$5,500 MRR — 8–11 retainer clients'},
+      {id:'p2-r2',text:'End of Month 12: $5,000–$7,500 MRR — 10–15 retainer clients'},
+      {id:'p2-r3',text:'Year 1 total revenue target: $40,000–$65,000 (MRR + cleanup project fees)'},
+      {id:'p2-r4',text:'Cleanup fees contributing $500–$1,500/mo in non-recurring project revenue'},
+    ]},
+    {label:'Service milestones',items:[
+      {id:'p2-s1',text:'Month 7: Launch cleanup-focused marketing campaign'},
+      {id:'p2-s2',text:'Month 8: CPA referral network fully active — 2–3 partners sending consistent referrals'},
+      {id:'p2-s3',text:'Month 9: Client retention system in place — monthly calls, NPS check-ins, anniversary reviews'},
+      {id:'p2-s4',text:'Month 10: Evaluate adding real estate investor bookkeeping niche'},
+      {id:'p2-s5',text:'Month 12: Service offering fully optimized based on 12 months of real client data'},
+    ]},
+    {label:'Team & systems',items:[
+      {id:'p2-t1',text:'Month 7: Hire first part-time bookkeeping contractor if at capacity ($20–$30/hr, 10–15 hrs/wk)'},
+      {id:'p2-t2',text:'Month 8: Contractor handles routine reconciliations; you handle cleanup and client relationships'},
+      {id:'p2-t3',text:'Month 10: Full SOP library complete — every process documented for delegation'},
+      {id:'p2-t4',text:'Month 12: Evaluate whether to expand to tax services (requires EA credential)'},
+    ]},
+  ]},
+  {id:'ph3',title:'Phase 3 — Months 13–24',sub:'Scalable firm & optional expansion',color:'#7C3AED',light:'#F5F3FF',sections:[
+    {label:'Revenue goals',items:[
+      {id:'p3-r1',text:'End of Month 18: $7,500–$10,000 MRR — 15–20 retainer clients'},
+      {id:'p3-r2',text:'End of Month 24: $8,000–$12,500 MRR — 16–25 clients'},
+      {id:'p3-r3',text:'Year 2 total revenue target: $100,000–$150,000'},
+      {id:'p3-r4',text:'Evaluate premium pricing increase to $550–$650/mo average'},
+    ]},
+    {label:'Expansion options (evaluate — do not commit early)',items:[
+      {id:'p3-s1',text:'Month 13–15: Evaluate real estate investor bookkeeping as a niche'},
+      {id:'p3-s2',text:'Month 16–18: Evaluate tax services — requires IRS Enrolled Agent credential'},
+      {id:'p3-s3',text:"Month 18: Evaluate acquiring a solo bookkeeper's client book (0.8–1.5x revenue valuation)"},
+      {id:'p3-s4',text:'Month 24: Evaluate full-service bundle: cleanup + bookkeeping + annual tax prep'},
+    ]},
+    {label:'Team & systems',items:[
+      {id:'p3-t1',text:'Month 13: Team of 2 — you + 1 part-time contractor handling 60–70% of routine work'},
+      {id:'p3-t2',text:'Month 15: Consider first W-2 employee hire if volume supports it'},
+      {id:'p3-t3',text:'Month 18: Upgrade practice management if Financial Cents outgrown (Karbon is the enterprise option)'},
+      {id:'p3-t4',text:'Month 24: Fully delegated monthly bookkeeping — you focus on cleanup, relationships, and strategy'},
+    ]},
+  ]},
+];
+
+const STORAGE_KEY='summit_tracker_v1';
+let state={checked:{},statuses:{}};
+function loadState(){
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r){const d=JSON.parse(r);state.checked=d.checked||{};state.statuses=d.statuses||{};}}catch(e){}
+  LAUNCH_TARGETS.forEach(lt=>{if(!state.statuses[lt.id])state.statuses[lt.id]=lt.init;});
+}
+function saveState(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+  const b=document.getElementById('saveBadge');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),1500);
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pbar(pct,color,height){color=color||'#C9A84C';height=height||6;return`<div class="pbar-track" style="height:${height}px"><div class="pbar-fill" style="width:${pct}%;background:${color};height:${height}px"></div></div>`;}
+function getWeekStats(w){const t=w.days.flatMap(d=>d.tasks);const dn=t.filter(t=>state.checked[t.id]).length;return{done:dn,total:t.length,pct:t.length?Math.round(dn/t.length*100):0};}
+function getDayStats(d){const dn=d.tasks.filter(t=>state.checked[t.id]).length;return{done:dn,total:d.tasks.length,pct:d.tasks.length?Math.round(dn/d.tasks.length*100):0};}
+function getPhaseStats(ph){const it=ph.sections.flatMap(s=>s.items);const dn=it.filter(i=>state.checked[i.id]).length;return{done:dn,total:it.length,pct:it.length?Math.round(dn/it.length*100):0};}
+
+function renderLaunchTargets(){
+  const done=LAUNCH_TARGETS.filter(lt=>state.statuses[lt.id]==='Complete').length;
+  const pct=Math.round(done/LAUNCH_TARGETS.length*100);
+  const rows=LAUNCH_TARGETS.map((lt)=>{
+    const s=state.statuses[lt.id]||'Pending';const sc=s.replace(/\s+/g,'-');const ok=s==='Complete';
+    const opts=['Pending','In Progress','Complete','Deferred'].map(o=>`<option value="${o}"${o===s?' selected':''}>${o}</option>`).join('');
+    return`<div class="lt-row${ok?' complete':''}" data-ltid="${lt.id}"><div class="lt-cell"><button class="cb${ok?' checked':''}" data-ltcb="${lt.id}"></button><span class="lt-text${ok?' done':''}">${esc(lt.text)}</span></div><div class="lt-status"><select class="status-sel st-${sc}" data-ltsel="${lt.id}">${opts}</select></div></div>`;
+  }).join('');
+  return`<div class="lt-header"><h3 class="section-title" style="margin:0">30-Day launch targets</h3><span class="lt-count">${done}/${LAUNCH_TARGETS.length} complete</span></div>${pbar(pct,'#C9A84C',6)}<div class="lt-table"><div class="lt-thead"><span>Target</span><span>Status</span></div>${rows}</div>`;
+}
+function renderTask(t){const dn=!!state.checked[t.id];return`<div class="task-row${dn?' done':''}" data-taskid="${t.id}"><button class="cb${dn?' checked':''}" data-taskcb="${t.id}"></button><span class="task-text${dn?' struck':''}">${esc(t.text)}</span><span class="cat-badge cat-${t.cat}">${t.cat}</span></div>`;}
+function renderDay(d){const{done,total,pct}=getDayStats(d);const c=pct===100?'#16A34A':'#C9A84C';return`<div class="day-block" id="day-${d.id}"><button class="day-btn" data-toggle="day-${d.id}"><span class="day-arrow">&#9654;</span><span class="day-name">${esc(d.title)}</span><span class="day-count">${done}/${total}</span><div class="day-bar">${pbar(pct,c,5)}</div></button><div class="day-body">${d.tasks.map(t=>renderTask(t)).join('')}</div></div>`;}
+function renderWeek(w,open){const{done,total,pct}=getWeekStats(w);const c=pct===100?'#16A34A':'#C9A84C';const pc=pct===100?'#15803D':'#1B2A5C';return`<div class="week-block${open?' open':''}" id="week-${w.id}"><button class="week-btn" data-toggle="week-${w.id}"><span class="week-arrow">&#9654;</span><div class="week-info"><div class="week-name">${esc(w.title)}</div><div class="week-sub">${w.sub}</div></div><div class="week-pct"><div class="p" style="color:${pc}">${pct}%</div><div class="c">${done}/${total} tasks</div></div><div class="week-bar">${pbar(pct,c,6)}</div></button><div class="week-body">${w.days.map(d=>renderDay(d)).join('')}</div></div>`;}
+function renderPhase(ph){const{done,total,pct}=getPhaseStats(ph);const secs=ph.sections.map(s=>{const items=s.items.map(it=>{const dn=!!state.checked[it.id];return`<div class="phase-item${dn?' done':''}" data-phaseid="${it.id}"><button class="cb${dn?' checked':''}" data-phasecb="${it.id}"></button><span class="phase-text${dn?' struck':''}">${esc(it.text)}</span></div>`;}).join('');return`<div class="phase-section-label" style="color:${ph.color}">${s.label}</div>${items}`;}).join('');return`<div class="phase-block" id="phase-${ph.id}"><button class="phase-btn" data-toggle="phase-${ph.id}"><span class="phase-arrow" style="color:${ph.color}">&#9654;</span><div class="week-info"><div class="week-name" style="color:${ph.color}">${esc(ph.title)}</div><div class="week-sub">${ph.sub}</div></div><div class="week-pct"><div class="p" style="color:${pct===100?'#15803D':ph.color}">${pct}%</div><div class="c">${done}/${total}</div></div><div class="week-bar">${pbar(pct,ph.color,6)}</div></button><div class="phase-body">${secs}</div></div>`;}
+
+function updateStats(){
+  const allD=WEEKS.flatMap(w=>w.days.flatMap(d=>d.tasks.map(t=>t.id)));
+  const allP=PHASES.flatMap(ph=>ph.sections.flatMap(s=>s.items.map(i=>i.id)));
+  const ld=LAUNCH_TARGETS.filter(lt=>state.statuses[lt.id]==='Complete').length;
+  const dd=allD.filter(id=>state.checked[id]).length;
+  const pd=allP.filter(id=>state.checked[id]).length;
+  const total=LAUNCH_TARGETS.length+allD.length+allP.length;
+  const done=ld+dd+pd;
+  const pct=Math.round(done/total*100);
+  document.getElementById('overallLabel').textContent=`${pct}% · ${done}/${total}`;
+  document.getElementById('overallBar').style.width=pct+'%';
+  document.getElementById('statLT').innerHTML=`${ld}<span>/${LAUNCH_TARGETS.length}</span>`;
+  document.getElementById('statDT').innerHTML=`${dd}<span>/${allD.length}</span>`;
+  document.getElementById('statMT').innerHTML=`${pd}<span>/${allP.length}</span>`;
+}
+function rerenderLT(){document.getElementById('ltContainer').innerHTML=renderLaunchTargets();}
+function rerenderDayProg(el){
+  const db=el.closest('.day-block');if(!db)return;
+  const did=db.id.replace('day-','');let day,week;
+  for(const w of WEEKS){for(const d of w.days){if(d.id===did){day=d;week=w;break;}}}
+  if(!day)return;
+  const ds=getDayStats(day);const dc=ds.pct===100?'#16A34A':'#C9A84C';
+  const dBar=db.querySelector('.day-bar');if(dBar)dBar.innerHTML=pbar(ds.pct,dc,5);
+  const dCnt=db.querySelector('.day-count');if(dCnt)dCnt.textContent=`${ds.done}/${ds.total}`;
+  if(week){const ws=getWeekStats(week);const wc=ws.pct===100?'#16A34A':'#C9A84C';
+    const wb=document.getElementById('week-'+week.id);if(wb){
+      const wBar=wb.querySelector('.week-bar');if(wBar)wBar.innerHTML=pbar(ws.pct,wc,6);
+      const wp=wb.querySelector('.week-pct .p');if(wp){wp.textContent=ws.pct+'%';wp.style.color=ws.pct===100?'#15803D':'#1B2A5C';}
+      const wc2=wb.querySelector('.week-pct .c');if(wc2)wc2.textContent=`${ws.done}/${ws.total} tasks`;}}
+}
+function rerenderPhaseProg(el){
+  const pb=el.closest('.phase-block');if(!pb)return;
+  const pid=pb.id.replace('phase-','');const ph=PHASES.find(p=>p.id===pid);if(!ph)return;
+  const ps=getPhaseStats(ph);const pBar=pb.querySelector('.week-bar');if(pBar)pBar.innerHTML=pbar(ps.pct,ph.color,6);
+  const pp=pb.querySelector('.week-pct .p');if(pp){pp.textContent=ps.pct+'%';pp.style.color=ps.pct===100?'#15803D':ph.color;}
+  const pc2=pb.querySelector('.week-pct .c');if(pc2)pc2.textContent=`${ps.done}/${ps.total}`;
+}
+document.addEventListener('click',e=>{
+  const tog=e.target.closest('[data-toggle]');
+  if(tog){const id=tog.dataset.toggle;const el=document.getElementById(id);if(el)el.classList.toggle('open');return;}
+  const ltcb=e.target.closest('[data-ltcb]');
+  if(ltcb){const id=ltcb.dataset.ltcb;state.statuses[id]=state.statuses[id]==='Complete'?'Pending':'Complete';saveState();rerenderLT();updateStats();return;}
+  const tcb=e.target.closest('[data-taskcb]');
+  if(tcb){const id=tcb.dataset.taskcb;state.checked[id]=!state.checked[id];saveState();
+    const row=document.querySelector(`[data-taskid="${id}"]`);
+    if(row){row.classList.toggle('done',state.checked[id]);row.querySelector('.cb').classList.toggle('checked',state.checked[id]);row.querySelector('.task-text').classList.toggle('struck',state.checked[id]);}
+    rerenderDayProg(tcb);updateStats();return;}
+  const pcb=e.target.closest('[data-phasecb]');
+  if(pcb){const id=pcb.dataset.phasecb;state.checked[id]=!state.checked[id];saveState();
+    const item=document.querySelector(`[data-phaseid="${id}"]`);
+    if(item){item.classList.toggle('done',state.checked[id]);item.querySelector('.cb').classList.toggle('checked',state.checked[id]);item.querySelector('.phase-text').classList.toggle('struck',state.checked[id]);}
+    rerenderPhaseProg(pcb);updateStats();return;}
+});
+document.addEventListener('change',e=>{
+  const sel=e.target.closest('[data-ltsel]');
+  if(sel){state.statuses[sel.dataset.ltsel]=sel.value;saveState();rerenderLT();updateStats();}
+});
+function switchTab(t){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(t==='launch'?0:1)));
+  document.getElementById('tabLaunch').style.display=t==='launch'?'block':'none';
+  document.getElementById('tabRoadmap').style.display=t==='roadmap'?'block':'none';
+}
+
+loadState();
+const mrrRows=[['Month 1','Month 3','Month 6','Month 9','Month 12','Month 24'],['$500–$1,500','$1,500–$2,500','$2,500–$4,000','$4,000–$5,500','$5,000–$7,500','$8,000–$12,500'],['1–3 clients','3–5 clients','5–8 clients','8–11 clients','10–15 clients','16–25 clients']];
+const mrrTable=`<table class="mrr-table"><tr>${mrrRows[0].map(h=>`<th>${h}</th>`).join('')}</tr><tr>${mrrRows[1].map(v=>`<td class="v">${v}</td>`).join('')}</tr><tr>${mrrRows[2].map(v=>`<td class="s">${v}</td>`).join('')}</tr></table>`;
+document.getElementById('tabLaunch').innerHTML=`<div id="ltContainer">${renderLaunchTargets()}</div><h3 class="section-title">Daily action plan</h3>${WEEKS.map((w,i)=>renderWeek(w,i===0)).join('')}`;
+document.getElementById('tabRoadmap').innerHTML=`<div class="roadmap-note"><strong>Growth philosophy:</strong> Bookkeeping cleanup is the entry point. Monthly bookkeeping retainers are the recurring revenue engine. One service done exceptionally well — not three done adequately.</div>${PHASES.map(ph=>renderPhase(ph)).join('')}<div class="mrr-title">MRR milestones</div>${mrrTable}`;
+updateStats();
+
+// ── PWA INSTALL PROMPT ──────────────────────────────────────────────────────
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBanner').style.display='flex';
+});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('installBanner').style.display='none';
+});
+window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').style.display='none';});
+
+// ── SERVICE WORKER ──────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>
