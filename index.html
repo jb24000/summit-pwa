@@ -689,7 +689,7 @@ function setTab(t,btn){
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 load();
-const mrrR=[['Month 1','Month 3','Month 6','Month 9','Month 12','Month 24'],['$500–$1,500','$1,500–$2,500','$2,500–$4,000','$4,000–$5,500','$5,000–$7,500','$8,000–$12,500'],['1–3 clients','3–5 clients','5–8 clients','8–11 clients','10–15 clients','16–25 clients']];
+const mrrR=[['Foundation','Early Growth','Growth','Scale','Operational'],['0–10 clients','10–30 clients','30–50 clients','50–75 clients','75–100+'],['$0–$5K MRR','$5K–$15K MRR','$15K–$25K MRR','$25K–$37.5K MRR','$37.5K–$50K MRR'],['You only','You only','You + 1 VA','You + 2 VAs','You + 3 VAs']];
 const mrrT=`<table class="mtbl"><tr>${mrrR[0].map(h=>`<th>${h}</th>`).join('')}</tr><tr>${mrrR[1].map(v=>`<td class="v">${v}</td>`).join('')}</tr><tr>${mrrR[2].map(v=>`<td class="s">${v}</td>`).join('')}</tr><tr>${mrrR[3].map(v=>`<td class="s" style="font-style:italic">${v}</td>`).join('')}</tr></table>`;
 document.getElementById('tLaunch').innerHTML=`<div id="ltWrap">${rLT()}</div><h3 class="stitle">Daily action plan</h3>${W.map((w,i)=>rWeek(w,i===0)).join('')}`;
 document.getElementById('tRoadmap').innerHTML=`<div class="rnote"><strong>Growth philosophy:</strong> Bookkeeping cleanup is the entry point. Monthly bookkeeping retainers are the recurring revenue engine. One service done exceptionally well — not three done adequately.</div>${PH.map(ph=>rPhase(ph)).join('')}<div style="font-size:13px;font-weight:700;color:#1B2A5C;margin:20px 0 8px">MRR milestones</div>${mrrT}`;
