@@ -152,7 +152,6 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F0F2F
 #ibanner button.inst{background:var(--navy);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 #ibanner button.dis{background:transparent;color:#92400E;border:1px solid var(--gold);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
 </style>
-</head>
 <body>
 <div class="wrap">
 
@@ -191,18 +190,19 @@ body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F0F2F
 <div class="tabs">
   <button class="tb on" onclick="setTab('launch',this)">30-Day launch</button>
   <button class="tb" onclick="setTab('roadmap',this)">Long-term roadmap</button>
+  <button class="tb" onclick="setTab('dashboard',this)">Dashboard</button>
 </div>
 <div class="cnt">
   <div id="tLaunch"></div>
   <div id="tRoadmap" style="display:none"></div>
+  <div id="tDashboard" style="display:none"></div>
 </div>
 </div>
 
 <script>
-// ── UNIQUE STORAGE KEY ──────────────────────────────────────────────────────
-const SK = 'sbs_growth_tracker_v1';
+const SK='sbs_growth_tracker_v1';
+const CAP_KEY='sbs_cap_v1';
 
-// ── DATA ───────────────────────────────────────────────────────────────────
 const LT=[
   {id:'lt-1',t:'DBA filed + branded email live',s:'Pending'},
   {id:'lt-2',t:'Relay banking structure configured',s:'Complete'},
@@ -215,6 +215,39 @@ const LT=[
   {id:'lt-9',t:'First cleanup project delivered',s:'Pending'},
   {id:'lt-10',t:'$1,500+ MRR achieved',s:'Pending'},
 ];
+
+// System milestones — operational achievements, not daily tasks
+const SM=[
+  {id:'sm-1', t:'Cleanup engagement letter finalized and loaded in DocuSign', c:'LEGAL'},
+  {id:'sm-2', t:'Ongoing bookkeeping agreement finalized and loaded in DocuSign', c:'LEGAL'},
+  {id:'sm-3', t:'E&O insurance bound and certificate saved', c:'LEGAL'},
+  {id:'sm-4', t:'Client intake form complete and live (Google Form or Typeform)', c:'SYSTEMS'},
+  {id:'sm-5', t:'Monthly close SOP documented — repeatable without thinking', c:'SYSTEMS'},
+  {id:'sm-6', t:'Cleanup delivery SOP documented — consistent output every time', c:'SYSTEMS'},
+  {id:'sm-7', t:'Client onboarding workflow fully built in Financial Cents', c:'SYSTEMS'},
+  {id:'sm-8', t:'QBO ProAdvisor certification complete', c:'SYSTEMS'},
+  {id:'sm-9', t:'VA training playbook complete — new VA onboardable in under 2 weeks', c:'SYSTEMS'},
+  {id:'sm-10', t:'QA checklist built and applied before every client delivery', c:'SYSTEMS'},
+  {id:'sm-11', t:'First CPA referral source established', c:'REVENUE'},
+  {id:'sm-12', t:'First recurring referral (2+ referrals from same CPA)', c:'REVENUE'},
+  {id:'sm-13', t:'Google reviews generating at least 1 inbound lead per month', c:'REVENUE'},
+  {id:'sm-14', t:'First month with zero missed client deadlines', c:'SYSTEMS'},
+  {id:'sm-15', t:'First month with zero onboarding friction — new client fully set up in under 48 hours', c:'SYSTEMS'},
+  {id:'sm-16', t:'VA performance tracking in place — turnaround time and error rate monitored', c:'SYSTEMS'},
+  {id:'sm-17', t:'Annual price increase implemented — first cohort of 12-month clients', c:'REVENUE'},
+  {id:'sm-18', t:'Relay allocation running on full autopilot — all 5 buckets auto-transferring', c:'ACCT'},
+  {id:'sm-19', t:'Year-end unspent ops transferred to profit — first time', c:'ACCT'},
+  {id:'sm-20', t:'W-2 exit analysis completed — exact MRR target documented', c:'ACCT'},
+];
+
+const STAGE_SUMMARY=[
+  {stage:'Foundation',   clients:'0–10',   mrr:'$0–$5K',       focus:'Learn + deliver'},
+  {stage:'Early Growth', clients:'10–30',  mrr:'$5K–$15K',     focus:'Standardize'},
+  {stage:'Growth',       clients:'30–50',  mrr:'$15K–$25K',    focus:'Delegate'},
+  {stage:'Scale',        clients:'50–75',  mrr:'$25K–$37.5K',  focus:'Optimize'},
+  {stage:'Operational',  clients:'75–100+',mrr:'$37.5K–$50K+', focus:'Operate & scale'},
+];
+
 const W=[
   {id:'w1',n:'Week 1 — Legal, banking & brand foundation',s:'Days 1–7',days:[
     {id:'d1',n:'Day 1 — Monday: Legal & registration',tasks:[
@@ -286,19 +319,19 @@ const W=[
       {id:'d8-2',t:'Finalize Standard: $500–$600/mo — 7–18 months backlog, monthly books + basic reporting',c:'REVENUE'},
       {id:'d8-3',t:'Finalize Premium: $600–$800/mo — 18+ months or complex books, full cleanup report + KPI reporting',c:'REVENUE'},
       {id:'d8-4',t:'Finalize One-Time Cleanup Project: $500–$1,500 flat fee, transitions to retainer on completion',c:'REVENUE'},
-      {id:'d8-5',t:'Build cleanup pricing calculator: months behind x avg transactions → estimate hours → flat fee',c:'CLEANUP'},
+      {id:'d8-5',t:'Build cleanup pricing calculator: months behind x avg transactions to estimate hours to flat fee',c:'CLEANUP'},
       {id:'d8-6',t:'Create 1-page branded PDF service menu — cleanup focus, no payroll, no tax',c:'MARKETING'},
       {id:'d8-7',t:'Build proposal template in PandaDoc — cleanup scope, flat fee, transition language, e-signature',c:'SYSTEMS'},
       {id:'d8-8',t:'Set billing terms: cleanup fee due at engagement start; monthly retainer auto-billed on the 1st',c:'ACCT'},
     ]},
     {id:'d9',n:'Day 9 — Tuesday: Cleanup workflow build-out',tasks:[
-      {id:'d9-1',t:'Build Cleanup Project Checklist in Financial Cents: intake → QBO access → bank feed → reconciliation → final review → report',c:'CLEANUP'},
+      {id:'d9-1',t:'Build Cleanup Project Checklist in Financial Cents: intake, QBO access, bank feed, reconciliation, final review, report',c:'CLEANUP'},
       {id:'d9-2',t:'Build cleanup month-by-month tracking sheet: month, transactions, reconciled Y/N, issues found, resolved Y/N',c:'CLEANUP'},
       {id:'d9-3',t:'Document cleanup discovery process: assess backlog severity, quote turnaround, identify red flags',c:'CLEANUP'},
       {id:'d9-4',t:'Write Cleanup Delivery SOP: reconciliation report, corrected P&L, balance sheet, issues summary',c:'CLEANUP'},
       {id:'d9-5',t:'Create Cleanup Red Flags Checklist: missing statements, cash transactions, multiple entities, loans not on books',c:'CLEANUP'},
       {id:'d9-6',t:'Build cleanup-to-retainer transition template: kickoff email, scope confirmation, first deliverable date',c:'CLEANUP'},
-      {id:'d9-7',t:"Review QBO's reclassification tools, bank rule engine, and reconciliation workflow",c:'SYSTEMS'},
+      {id:'d9-7',t:"Review QBO reclassification tools, bank rule engine, and reconciliation workflow",c:'SYSTEMS'},
     ]},
     {id:'d10',n:'Day 10 — Wednesday: QBO certification push',tasks:[
       {id:'d10-1',t:'Block entire day — complete all remaining QBO ProAdvisor certification modules',c:'SYSTEMS'},
@@ -315,10 +348,10 @@ const W=[
       {id:'d11-4',t:'Create Ongoing Bookkeeping Welcome Packet: monthly deliverables, deadlines, document submission',c:'SYSTEMS'},
       {id:'d11-5',t:'Set up recurring task templates in Financial Cents for monthly bookkeeping close cycle',c:'SYSTEMS'},
       {id:'d11-6',t:'Create monthly delivery template: P&L, balance sheet, plain-English narrative, action items',c:'ACCT'},
-      {id:'d11-7',t:'Write discovery call script — cleanup version: how far behind, what has been missed, compliance concerns',c:'SYSTEMS'},
+      {id:'d11-7',t:'Write discovery call script — cleanup version: how far behind, what has been missed',c:'SYSTEMS'},
     ]},
     {id:'d12',n:'Day 12 — Friday: Capabilities deck & collateral',tasks:[
-      {id:'d12-1',t:"Build Capabilities Deck (5–6 slides) in Canva — cleanup focused",c:'MARKETING'},
+      {id:'d12-1',t:'Build Capabilities Deck (5–6 slides) in Canva — cleanup focused',c:'MARKETING'},
       {id:'d12-2',t:"Slide 1: Cover — logo, tagline 'Clean Books. Clear Numbers. Every Month.'",c:'MARKETING'},
       {id:'d12-3',t:'Slide 2: Who we serve — service business owners behind on their books',c:'MARKETING'},
       {id:'d12-4',t:'Slide 3: The cleanup process — what we do, timeline, what client receives',c:'MARKETING'},
@@ -328,7 +361,7 @@ const W=[
     ]},
     {id:'d1314',n:'Day 13–14 — Weekend: Prospect list & outreach prep',tasks:[
       {id:'d1314-1',t:'Build target prospect list of 50 service businesses in Durham, RTP, Eastern NC',c:'REVENUE'},
-      {id:'d1314-2',t:'Sources: Google Maps, Yelp, BBB — look for businesses 2–5 years old (likely have messy books)',c:'REVENUE'},
+      {id:'d1314-2',t:'Sources: Google Maps, Yelp, BBB — look for businesses 2–5 years old',c:'REVENUE'},
       {id:'d1314-3',t:'Capture: business name, owner name, phone, email, years in business, employee count',c:'REVENUE'},
       {id:'d1314-4',t:'Identify 15 warm contacts in your SECU and RE investor networks who own businesses',c:'REVENUE'},
       {id:'d1314-5',t:'Identify 5 CPAs in your area — they refer clients with messy books they do not want',c:'REVENUE'},
@@ -340,7 +373,7 @@ const W=[
     {id:'d15',n:'Day 15 — Monday: Warm outreach blitz',tasks:[
       {id:'d15-1',t:'Send personalized outreach to all 15 warm contacts — text or personal email, never mass blast',c:'REVENUE'},
       {id:'d15-2',t:"Message: 'I just launched Summit Business Services — bookkeeping cleanup for service businesses. Know any owners behind on their books?'",c:'REVENUE'},
-      {id:'d15-3',t:'Send Calendly link to every contact who expresses interest — do not let momentum stall',c:'REVENUE'},
+      {id:'d15-3',t:'Send Calendly link to every contact who expresses interest',c:'REVENUE'},
       {id:'d15-4',t:'Email 5 cold prospects using your intro email template',c:'REVENUE'},
       {id:'d15-5',t:"Post first LinkedIn content: '3 signs your service business books need a cleanup'",c:'MARKETING'},
       {id:'d15-6',t:'Call or email 2 CPAs — position as the cleanup specialist for their messy-book referrals',c:'REVENUE'},
@@ -348,7 +381,7 @@ const W=[
     ]},
     {id:'d16',n:'Day 16 — Tuesday: Discovery calls & proposals',tasks:[
       {id:'d16-1',t:'Conduct all discovery calls booked via Calendly — use your cleanup discovery script',c:'REVENUE'},
-      {id:'d16-2',t:'Cleanup discovery: months behind → current software → bank accounts → transaction volume → quote on the call',c:'CLEANUP'},
+      {id:'d16-2',t:'Cleanup discovery: months behind, current software, bank accounts, transaction volume, quote on the call',c:'CLEANUP'},
       {id:'d16-3',t:'Send cleanup proposals within 2 hours — flat fee, timeline, deliverables, retainer transition language',c:'REVENUE'},
       {id:'d16-4',t:'Continue cold email outreach — send to next batch of 10 prospects',c:'REVENUE'},
       {id:'d16-5',t:'Visit 3 local service businesses in person — introduce yourself, leave a capabilities deck',c:'REVENUE'},
@@ -362,7 +395,7 @@ const W=[
       {id:'d17-5',t:"Post LinkedIn: 'Why business owners wait too long to clean up their books'",c:'MARKETING'},
     ]},
     {id:'d18',n:'Day 18 — Thursday: First client onboarding',tasks:[
-      {id:'d18-1',t:'For any signed cleanup clients: collect upfront fee, send Welcome Packet and Intake Form',c:'REVENUE'},
+      {id:'d18-1',t:'For any signed cleanup clients: collect upfront fee, send Welcome Packet and Intake Form immediately',c:'REVENUE'},
       {id:'d18-2',t:'Set up client in Financial Cents — assign cleanup project checklist, set task schedule',c:'SYSTEMS'},
       {id:'d18-3',t:'Request QBO access or set up new QBO file; connect bank feeds',c:'ACCT'},
       {id:'d18-4',t:'Begin month-by-month cleanup — oldest months first, work forward chronologically',c:'CLEANUP'},
@@ -383,7 +416,7 @@ const W=[
       {id:'d2021-3',t:'Write Client Offboarding SOP: final reports, QBO access removal, file archiving, referral request',c:'SYSTEMS'},
       {id:'d2021-4',t:'Create Quality Review Checklist — what you verify before sending any deliverable',c:'SYSTEMS'},
       {id:'d2021-5',t:'Review Week 3 pipeline — pending proposals, follow-up actions for Week 4',c:'REVENUE'},
-      {id:'d2021-6',t:'Review Relay balances — verify tax reserve is funding correctly',c:'ACCT'},
+      {id:'d2021-6',t:'Review Relay balances — verify all 5 buckets auto-transferring correctly',c:'ACCT'},
     ]},
   ]},
   {id:'w4',n:'Week 4 — Close, stabilize & set up Month 2',s:'Days 22–30',days:[
@@ -407,14 +440,14 @@ const W=[
     {id:'d25',n:'Day 25 — Thursday: Capacity planning',tasks:[
       {id:'d25-1',t:'Map out your weekly time budget: 10–12 clients x 4 hrs = 40–48 hrs/month',c:'SYSTEMS'},
       {id:'d25-2',t:'Define your capacity limit: maximum clients you can serve alone at current service quality',c:'SYSTEMS'},
-      {id:'d25-3',t:"Define the hiring trigger: 'When I hit [X] clients, I hire a part-time QBO contractor.'",c:'SYSTEMS'},
+      {id:'d25-3',t:"Define the hiring trigger: 'When I hit 30 clients, I hire first VA at $2,000/mo'",c:'SYSTEMS'},
       {id:'d25-4',t:'Review your Financial Cents workflow — are all client tasks on track?',c:'SYSTEMS'},
       {id:'d25-5',t:'Identify which cleanup tasks are most time-consuming and could be delegated first',c:'CLEANUP'},
       {id:'d25-6',t:'Review cleanup pipeline — how many cleanup-to-retainer conversions are in progress?',c:'CLEANUP'},
     ]},
     {id:'d26',n:'Day 26 — Friday: Financial review & Month 2 planning',tasks:[
       {id:'d26-1',t:'Run your own P&L in QBO for Summit Business Services — first internal financial review',c:'ACCT'},
-      {id:'d26-2',t:'Review Relay account balances — confirm tax reserve funded at 25% of total revenue',c:'ACCT'},
+      {id:'d26-2',t:'Review Relay account balances — confirm all 5 buckets funded at correct percentages',c:'ACCT'},
       {id:'d26-3',t:'Calculate current MRR (retainer clients) + project revenue (cleanup fees) separately',c:'ACCT'},
       {id:'d26-4',t:'Calculate cleanup pipeline value — cleanup fees in proposals outstanding',c:'ACCT'},
       {id:'d26-5',t:'Set Month 2 MRR target: $1,500–$2,500 (3–5 retainer clients)',c:'ACCT'},
@@ -422,7 +455,7 @@ const W=[
       {id:'d26-7',t:'Update your 30-60-90 day plan based on what you have learned this month',c:'SYSTEMS'},
     ]},
     {id:'d2730',n:'Day 27–30 — Close-out: Review, refine & relaunch',tasks:[
-      {id:'d2730-1',t:'Complete 30-day debrief: what worked, what stalled, what surprised you — document in writing',c:'SYSTEMS'},
+      {id:'d2730-1',t:'Complete 30-day debrief: what worked, what stalled, what surprised you',c:'SYSTEMS'},
       {id:'d2730-2',t:'Review every checklist item in this plan — mark completed, in-progress, or deferred',c:'SYSTEMS'},
       {id:'d2730-3',t:'Request Google Reviews from satisfied clients — cleanup completions are the best time to ask',c:'MARKETING'},
       {id:'d2730-4',t:"Write your Month 2 launch LinkedIn post: '30 days in. Here is what I learned.'",c:'MARKETING'},
@@ -433,6 +466,7 @@ const W=[
     ]},
   ]},
 ];
+
 const PH=[
   {id:'ph1',n:'Stage 1 — Foundation',s:'0–10 clients • You only • Learn the business',color:'#0F766E',light:'#F0FDFA',secs:[
     {l:'Client targets',items:[
@@ -444,7 +478,7 @@ const PH=[
     {l:'Relay allocation at $5,000 MRR (10 clients)',items:[
       {id:'p1-r1',t:'Owner compensation (40%): $2,000/mo'},
       {id:'p1-r2',t:'Taxes (20%): $1,000/mo — pre-funded, never touched'},
-      {id:'p1-r3',t:'Operating expenses (20%): $1,000/mo — software only, no VAs yet'},
+      {id:'p1-r3',t:'Operating expenses (20%): $1,000/mo — software only (~$500), unspent ~$500'},
       {id:'p1-r4',t:'Strategic reserve (10%): $500/mo — building liquidity'},
       {id:'p1-r5',t:'Profit (10%): $500/mo + unspent ops (~$500) transferred to profit at year end'},
     ]},
@@ -475,13 +509,13 @@ const PH=[
       {id:'p2-r1',t:'Owner compensation (40%): $6,000/mo'},
       {id:'p2-r2',t:'Taxes (20%): $3,000/mo — pre-funded, never touched'},
       {id:'p2-r3',t:'Operating expenses (20%): $3,000/mo — software only (~$600), unspent ~$2,400'},
-      {id:'p2-r4',t:'Strategic reserve (10%): $1,500/mo — liquidity building steadily'},
+      {id:'p2-r4',t:'Strategic reserve (10%): $1,500/mo'},
       {id:'p2-r5',t:'Profit (10%): $1,500/mo + unspent ops (~$2,400) transferred to profit at year end'},
     ]},
     {l:'Strategic focus',items:[
-      {id:'p2-s1',t:'Standardize the client experience — every client gets the same onboarding, same delivery, same communication'},
+      {id:'p2-s1',t:'Standardize the client experience — every client gets the same onboarding, delivery, and communication'},
       {id:'p2-s2',t:'Build the VA training playbook now — document every task as a step-by-step SOP'},
-      {id:'p2-s3',t:'Refine your cleanup pricing from real data — adjust for transaction volume, entity complexity, missing statements'},
+      {id:'p2-s3',t:'Refine your cleanup pricing from real data — adjust for volume, complexity, missing statements'},
       {id:'p2-s4',t:'CPA referral network generating at least 2 inbound leads per month'},
       {id:'p2-s5',t:'Google reviews from satisfied cleanup clients — social proof for inbound leads'},
       {id:'p2-s6',t:'Track time per client — know exactly which client types take more or less than 4 hours'},
@@ -525,7 +559,7 @@ const PH=[
   {id:'ph4',n:'Stage 4 — Scale',s:'50–75 clients • You + 2 VAs • Operational leverage',color:'#B45309',light:'#FFFBEB',secs:[
     {l:'Client targets',items:[
       {id:'p4-c1',t:'Hire second full-time VA at 50 clients — $2,000/mo, total VA spend $4,000/mo'},
-      {id:'p4-c2',t:'VA 1: handles client group A (recurring reconciliations, bank feeds, categorizations)'},
+      {id:'p4-c2',t:'VA 1: handles client group A — recurring reconciliations, bank feeds, categorizations'},
       {id:'p4-c3',t:'VA 2: handles client group B — same scope, different clients'},
       {id:'p4-c4',t:'You: cleanup projects, new client onboarding, QA review, client relationships, business development'},
       {id:'p4-c5',t:'Target 75 clients by end of Stage 4'},
@@ -587,57 +621,212 @@ const PH=[
     ]},
   ]},
 ];
+
 // ── STATE ──────────────────────────────────────────────────────────────────
 let S={checked:{},statuses:{}};
+let CAP={activeClients:0,hoursPerClient:4,reviewHrsPerWeek:2,onboardingBacklog:0,vaCount:0,avgRetainer:500};
+
 function load(){
   try{const r=localStorage.getItem(SK);if(r){const d=JSON.parse(r);S.checked=d.checked||{};S.statuses=d.statuses||{};}}catch(e){}
   LT.forEach(l=>{if(!S.statuses[l.id])S.statuses[l.id]=l.s;});
+}
+function loadCap(){
+  try{const r=localStorage.getItem(CAP_KEY);if(r)CAP=Object.assign(CAP,JSON.parse(r));}catch(e){}
 }
 function save(){
   try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
   const b=document.getElementById('saved');b.classList.add('on');setTimeout(()=>b.classList.remove('on'),1500);
 }
+function saveCap(){
+  try{localStorage.setItem(CAP_KEY,JSON.stringify(CAP));}catch(e){}
+}
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const pb=(p,c,h)=>`<div class="pt" style="height:${h||6}px"><div class="pf" style="width:${p}%;background:${c||'#C9A84C'};height:${h||6}px"></div></div>`;
+const fmt=n=>n>=1000?'$'+(n/1000).toFixed(1).replace(/\.0$/,'')+'K':'$'+n;
 const wSt=w=>{const t=w.days.flatMap(d=>d.tasks);const dn=t.filter(t=>S.checked[t.id]).length;return{dn,tot:t.length,p:t.length?Math.round(dn/t.length*100):0};};
 const dSt=d=>{const dn=d.tasks.filter(t=>S.checked[t.id]).length;return{dn,tot:d.tasks.length,p:d.tasks.length?Math.round(dn/d.tasks.length*100):0};};
 const phSt=ph=>{const it=ph.secs.flatMap(s=>s.items);const dn=it.filter(i=>S.checked[i.id]).length;return{dn,tot:it.length,p:it.length?Math.round(dn/it.length*100):0};};
 
-// ── RENDER ────────────────────────────────────────────────────────────────
+// ── RENDER LAUNCH TARGETS ──────────────────────────────────────────────────
 function rLT(){
   const dn=LT.filter(l=>S.statuses[l.id]==='Complete').length;
   const p=Math.round(dn/LT.length*100);
   const rows=LT.map(l=>{
-    const st=S.statuses[l.id]||'Pending';
-    const sc=st.replace(/\s+/g,'-');
-    const ok=st==='Complete';
+    const st=S.statuses[l.id]||'Pending';const sc=st.replace(/\s+/g,'-');const ok=st==='Complete';
     const opts=['Pending','In Progress','Complete','Deferred'].map(o=>`<option value="${o}"${o===st?' selected':''}>${o}</option>`).join('');
     return`<div class="ltr${ok?' done':''}" data-lid="${l.id}"><div class="ltc"><button class="cb${ok?' on':''}" data-lcb="${l.id}"></button><span class="ltt${ok?' x':''}">${e(l.t)}</span></div><div style="display:flex;justify-content:center"><select class="ssel s-${sc}" data-lsel="${l.id}">${opts}</select></div></div>`;
   }).join('');
   return`<div class="lth"><h3 class="stitle" style="margin:0">30-Day launch targets</h3><span style="font-size:12px;color:#6B7280">${dn}/${LT.length} complete</span></div>${pb(p,'#C9A84C',6)}<div class="ltable"><div class="lthd"><span>Target</span><span style="text-align:center">Status</span></div>${rows}</div>`;
 }
+
+// ── RENDER TASKS / DAYS / WEEKS ────────────────────────────────────────────
 function rTask(t){const dn=!!S.checked[t.id];return`<div class="trow${dn?' x':''}" data-tid="${t.id}"><button class="cb${dn?' on':''}" data-tcb="${t.id}"></button><span class="ttxt${dn?' x':''}">${e(t.t)}</span><span class="cat cat-${t.c}">${t.c}</span></div>`;}
 function rDay(d){const{dn,tot,p}=dSt(d);const c=p===100?'#16A34A':'#C9A84C';return`<div class="dblk" id="d-${d.id}"><button class="dbtn" data-tog="d-${d.id}"><span class="arr" style="color:#1B2A5C">&#9654;</span><span class="dn">${e(d.n)}</span><span class="dc">${dn}/${tot}</span><div class="dbar">${pb(p,c,5)}</div></button><div class="dbody">${d.tasks.map(t=>rTask(t)).join('')}</div></div>`;}
 function rWeek(w,open){const{dn,tot,p}=wSt(w);const c=p===100?'#16A34A':'#C9A84C';const pc=p===100?'#15803D':'#1B2A5C';return`<div class="wblk${open?' on':''}" id="w-${w.id}"><button class="wbtn" data-tog="w-${w.id}"><span class="arr" style="color:#1B2A5C">&#9654;</span><div class="wi"><div class="wn">${e(w.n)}</div><div class="ws">${w.s}</div></div><div class="wp"><div class="pc" style="color:${pc}">${p}%</div><div class="ct">${dn}/${tot} tasks</div></div><div class="wbar">${pb(p,c,6)}</div></button><div class="wbody">${w.days.map(d=>rDay(d)).join('')}</div></div>`;}
+
+// ── RENDER PHASES ──────────────────────────────────────────────────────────
 function rPhase(ph){const{dn,tot,p}=phSt(ph);const secs=ph.secs.map(s=>{const items=s.items.map(it=>{const dn=!!S.checked[it.id];return`<div class="pitm${dn?' x':''}" data-pid="${it.id}"><button class="cb${dn?' on':''}" data-pcb="${it.id}"></button><span class="ptxt${dn?' x':''}">${e(it.t)}</span></div>`;}).join('');return`<div class="plbl" style="color:${ph.color}">${s.l}</div>${items}`;}).join('');return`<div class="pblk" id="ph-${ph.id}"><button class="pbtn" data-tog="ph-${ph.id}"><span class="arr" style="color:${ph.color}">&#9654;</span><div class="wi"><div class="wn" style="color:${ph.color}">${e(ph.n)}</div><div class="ws">${ph.s}</div></div><div class="wp"><div class="pc" style="color:${p===100?'#15803D':ph.color}">${p}%</div><div class="ct">${dn}/${tot}</div></div><div class="wbar">${pb(p,ph.color,6)}</div></button><div class="pbody">${secs}</div></div>`;}
 
+// ── RENDER SYSTEM MILESTONES ───────────────────────────────────────────────
+function rSysM(){
+  const dn=SM.filter(m=>S.checked[m.id]).length;
+  const p=Math.round(dn/SM.length*100);
+  const items=SM.map(m=>{
+    const done=!!S.checked[m.id];
+    const cat=m.c;
+    return`<div class="trow${done?' x':''}" data-tid="${m.id}"><button class="cb${done?' on':''}" data-tcb="${m.id}"></button><span class="ttxt${done?' x':''}">${e(m.t)}</span><span class="cat cat-${cat}">${cat}</span></div>`;
+  }).join('');
+  return`<div style="margin-bottom:24px">
+    <div class="lth"><h3 class="stitle" style="margin:0">System milestones</h3><span style="font-size:12px;color:#6B7280">${dn}/${SM.length} complete</span></div>
+    ${pb(p,'#C9A84C',6)}
+    <div style="margin-top:10px;border:1px solid #E5E7EB;border-radius:8px;padding:4px 14px 8px;background:#fff">${items}</div>
+  </div>`;
+}
+
+// ── RENDER STAGE SUMMARY TABLE ─────────────────────────────────────────────
+function rStageSummary(){
+  const rows=STAGE_SUMMARY.map((s,i)=>{
+    const bg=i%2===0?'#fff':'#F8FAFC';
+    return`<tr style="background:${bg}">
+      <td style="padding:9px 12px;font-weight:700;color:#1B2A5C;border:1px solid #E5E7EB">${s.stage}</td>
+      <td style="padding:9px 12px;text-align:center;border:1px solid #E5E7EB;color:#374151">${s.clients}</td>
+      <td style="padding:9px 12px;text-align:center;font-weight:700;color:#0F766E;border:1px solid #E5E7EB">${s.mrr}</td>
+      <td style="padding:9px 12px;text-align:center;border:1px solid #E5E7EB;color:#6B7280;font-style:italic">${s.focus}</td>
+    </tr>`;
+  }).join('');
+  return`<div style="margin-bottom:20px;overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#1B2A5C">
+        <th style="padding:9px 12px;color:#C9A84C;font-weight:700;text-align:left;border:1px solid #1B2A5C">Stage</th>
+        <th style="padding:9px 12px;color:#C9A84C;font-weight:700;text-align:center;border:1px solid #1B2A5C">Clients</th>
+        <th style="padding:9px 12px;color:#C9A84C;font-weight:700;text-align:center;border:1px solid #1B2A5C">Target MRR</th>
+        <th style="padding:9px 12px;color:#C9A84C;font-weight:700;text-align:center;border:1px solid #1B2A5C">Your Focus</th>
+      </tr>
+      ${rows}
+    </table>
+  </div>`;
+}
+
+// ── RENDER DASHBOARD ───────────────────────────────────────────────────────
+function rDashboard(){
+  const ac=CAP.activeClients||0;
+  const hpc=CAP.hoursPerClient||4;
+  const rhw=CAP.reviewHrsPerWeek||0;
+  const ob=CAP.onboardingBacklog||0;
+  const vc=CAP.vaCount||0;
+  const ar=CAP.avgRetainer||500;
+
+  const totalHrsMo=ac*hpc;
+  const reviewHrsMo=rhw*4;
+  const vaCap=vc*160;
+  const vaUtil=vaCap>0?Math.min(Math.round(((totalHrsMo-reviewHrsMo)/vaCap)*100),100):0;
+  const mrr=ac*ar;
+  const revPerHr=totalHrsMo>0?Math.round(mrr/totalHrsMo):0;
+  const yourHrsMo=Math.max(totalHrsMo-(vaCap*vaUtil/100),reviewHrsMo);
+
+  const stage=ac<=10?'Foundation':ac<=30?'Early Growth':ac<=50?'Growth':ac<=75?'Scale':'Operational';
+  const nextVA=ac<30?30:ac<50?50:ac<75?75:ac<100?100:null;
+  const nextVAMsg=nextVA?`Next VA hire at ${nextVA} clients (${nextVA-ac} to go)`:'Full VA team active';
+
+  const relay40=Math.round(mrr*0.4);
+  const relay20t=Math.round(mrr*0.2);
+  const relay20o=Math.round(mrr*0.2);
+  const relay10s=Math.round(mrr*0.1);
+  const relay10p=Math.round(mrr*0.1);
+  const opsBudget=relay20o;
+  const opsSpend=vc*2000+(ac>0?700:500);
+  const opsUnspent=Math.max(opsBudget-opsSpend,0);
+
+  const inp=(id,lbl,val,mn,mx,step)=>`<div style="display:flex;flex-direction:column;gap:4px">
+    <label style="font-size:11px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.04em">${lbl}</label>
+    <input type="number" id="${id}" value="${val}" min="${mn}" max="${mx}" step="${step||1}"
+      style="padding:8px 10px;border:1px solid #E5E7EB;border-radius:6px;font-size:14px;font-weight:600;color:#1B2A5C;width:100%;font-family:inherit"
+      oninput="updateCap('${id}',this.value)">
+  </div>`;
+
+  const metric=(lbl,val,sub,color)=>`<div style="background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:12px 14px">
+    <div style="font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${lbl}</div>
+    <div style="font-size:20px;font-weight:700;color:${color||'#1B2A5C'}">${val}</div>
+    ${sub?`<div style="font-size:11px;color:#9CA3AF;margin-top:2px">${sub}</div>`:''}
+  </div>`;
+
+  const relayRow=(lbl,pct,amt,note)=>`<div style="display:grid;grid-template-columns:1fr 60px 80px;align-items:center;padding:8px 12px;border-bottom:1px solid #F3F4F6;gap:8px">
+    <span style="font-size:13px;color:#374151">${lbl}</span>
+    <span style="font-size:12px;font-weight:700;color:#C9A84C;text-align:center">${pct}%</span>
+    <span style="font-size:13px;font-weight:700;color:#1B2A5C;text-align:right">${fmt(amt)}/mo</span>
+  </div>`;
+
+  return`
+  <div style="margin-bottom:16px;padding:12px 16px;background:#FBF3DC;border-radius:8px;border:1px solid rgba(201,168,76,.2);font-size:13px;color:#78350F">
+    <strong>Current stage: ${stage}</strong> &nbsp;•&nbsp; ${nextVAMsg}
+  </div>
+
+  <h3 class="stitle">Capacity inputs</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+    ${inp('cap-ac','Active clients',ac,0,200)}
+    ${inp('cap-ar','Avg retainer ($)',ar,100,2000,50)}
+    ${inp('cap-hpc','Hrs per client',hpc,1,20,0.5)}
+    ${inp('cap-vc','VA count',vc,0,10)}
+    ${inp('cap-rhw','Review hrs/week',rhw,0,40)}
+    ${inp('cap-ob','Onboarding backlog',ob,0,50)}
+  </div>
+
+  <h3 class="stitle">Capacity metrics</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+    ${metric('Monthly MRR',fmt(mrr),'at '+ac+' clients','#0F766E')}
+    ${metric('Total hrs/month',totalHrsMo+'h',ac+' clients × '+hpc+'h')}
+    ${metric('Your hrs/month',Math.round(yourHrsMo)+'h','after VA coverage')}
+    ${metric('VA utilization',vc>0?vaUtil+'%':'N/A',vc>0?(vaCap+'h capacity'):'No VAs yet',vaUtil>85?'#DC2626':vaUtil>65?'#B45309':'#15803D')}
+    ${metric('Rev per op hour',revPerHr>0?'$'+revPerHr:'-','MRR ÷ total hrs',revPerHr>=125?'#15803D':revPerHr>=100?'#B45309':'#DC2626')}
+    ${metric('Onboarding backlog',ob+' clients',ob===0?'Clear':'Action needed',ob>3?'#DC2626':ob>0?'#B45309':'#15803D')}
+  </div>
+
+  <h3 class="stitle">Relay allocation at current MRR</h3>
+  <div style="border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;margin-bottom:20px;background:#fff">
+    <div style="background:#1B2A5C;padding:8px 12px;display:grid;grid-template-columns:1fr 60px 80px;gap:8px">
+      <span style="font-size:11px;font-weight:700;color:#C9A84C;text-transform:uppercase">Bucket</span>
+      <span style="font-size:11px;font-weight:700;color:#C9A84C;text-transform:uppercase;text-align:center">%</span>
+      <span style="font-size:11px;font-weight:700;color:#C9A84C;text-transform:uppercase;text-align:right">Amount</span>
+    </div>
+    ${relayRow('Owner compensation',40,relay40)}
+    ${relayRow('Taxes',20,relay20t)}
+    ${relayRow('Operating expenses',20,relay20o)}
+    <div style="display:grid;grid-template-columns:1fr 60px 80px;align-items:center;padding:6px 12px 6px 24px;border-bottom:1px solid #F3F4F6;gap:8px">
+      <span style="font-size:12px;color:#6B7280">Spent (VAs + software)</span>
+      <span></span>
+      <span style="font-size:12px;color:#DC2626;text-align:right">-${fmt(Math.min(opsSpend,relay20o))}/mo</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 60px 80px;align-items:center;padding:6px 12px 8px 24px;border-bottom:1px solid #F3F4F6;gap:8px">
+      <span style="font-size:12px;color:#15803D;font-style:italic">Unspent → profit at year end</span>
+      <span></span>
+      <span style="font-size:12px;color:#15803D;font-weight:700;text-align:right">+${fmt(opsUnspent)}/mo</span>
+    </div>
+    ${relayRow('Strategic reserve',10,relay10s)}
+    ${relayRow('Profit',10,relay10p)}
+  </div>`;
+}
+
+// ── STATS UPDATE ───────────────────────────────────────────────────────────
 function upStats(){
   const aD=W.flatMap(w=>w.days.flatMap(d=>d.tasks.map(t=>t.id)));
   const aP=PH.flatMap(ph=>ph.secs.flatMap(s=>s.items.map(i=>i.id)));
+  const aM=SM.map(m=>m.id);
   const ld=LT.filter(l=>S.statuses[l.id]==='Complete').length;
   const dd=aD.filter(id=>S.checked[id]).length;
   const pd=aP.filter(id=>S.checked[id]).length;
-  const tot=LT.length+aD.length+aP.length;
-  const dn=ld+dd+pd;
+  const md=aM.filter(id=>S.checked[id]).length;
+  const tot=LT.length+aD.length+aP.length+aM.length;
+  const dn=ld+dd+pd+md;
   const p=Math.round(dn/tot*100);
   document.getElementById('opct').textContent=`${p}% · ${dn}/${tot}`;
   document.getElementById('obar').style.width=p+'%';
   document.getElementById('slt').innerHTML=`${ld}<span>/${LT.length}</span>`;
   document.getElementById('sdt').innerHTML=`${dd}<span>/${aD.length}</span>`;
-  document.getElementById('smt').innerHTML=`${pd}<span>/${aP.length}</span>`;
+  document.getElementById('smt').innerHTML=`${pd+md}<span>/${aP.length+aM.length}</span>`;
 }
+
 function upDayProg(el){
   const db=el.closest('[id^="d-"]');if(!db)return;
   const did=db.id.slice(2);let day,week;
@@ -660,6 +849,13 @@ function upPhProg(el){
   const pCt=pb2.querySelector('.wp .ct');if(pCt)pCt.textContent=`${ps.dn}/${ps.tot}`;
 }
 
+// ── CAPACITY UPDATE ────────────────────────────────────────────────────────
+function updateCap(field,val){
+  const map={'cap-ac':'activeClients','cap-ar':'avgRetainer','cap-hpc':'hoursPerClient','cap-vc':'vaCount','cap-rhw':'reviewHrsPerWeek','cap-ob':'onboardingBacklog'};
+  if(map[field]){CAP[map[field]]=parseFloat(val)||0;saveCap();document.getElementById('tDashboard').innerHTML=rDashboard();}
+}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────────
 document.addEventListener('click',ev=>{
   const tog=ev.target.closest('[data-tog]');
   if(tog){const id=tog.dataset.tog;const el=document.getElementById(id);if(el)el.classList.toggle('on');return;}
@@ -680,19 +876,29 @@ document.addEventListener('change',ev=>{
   const sel=ev.target.closest('[data-lsel]');
   if(sel){S.statuses[sel.dataset.lsel]=sel.value;save();document.getElementById('ltWrap').innerHTML=rLT();upStats();}
 });
+
 function setTab(t,btn){
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('tLaunch').style.display=t==='launch'?'block':'none';
   document.getElementById('tRoadmap').style.display=t==='roadmap'?'block':'none';
+  document.getElementById('tDashboard').style.display=t==='dashboard'?'block':'none';
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────────────────────────
 load();
-const mrrR=[['Foundation','Early Growth','Growth','Scale','Operational'],['0–10 clients','10–30 clients','30–50 clients','50–75 clients','75–100+'],['$0–$5K MRR','$5K–$15K MRR','$15K–$25K MRR','$25K–$37.5K MRR','$37.5K–$50K MRR'],['You only','You only','You + 1 VA','You + 2 VAs','You + 3 VAs']];
-const mrrT=`<table class="mtbl"><tr>${mrrR[0].map(h=>`<th>${h}</th>`).join('')}</tr><tr>${mrrR[1].map(v=>`<td class="v">${v}</td>`).join('')}</tr><tr>${mrrR[2].map(v=>`<td class="s">${v}</td>`).join('')}</tr><tr>${mrrR[3].map(v=>`<td class="s" style="font-style:italic">${v}</td>`).join('')}</tr></table>`;
+loadCap();
+
 document.getElementById('tLaunch').innerHTML=`<div id="ltWrap">${rLT()}</div><h3 class="stitle">Daily action plan</h3>${W.map((w,i)=>rWeek(w,i===0)).join('')}`;
-document.getElementById('tRoadmap').innerHTML=`<div class="rnote"><strong>Growth philosophy:</strong> Bookkeeping cleanup is the entry point. Monthly bookkeeping retainers are the recurring revenue engine. One service done exceptionally well — not three done adequately.</div>${PH.map(ph=>rPhase(ph)).join('')}<div style="font-size:13px;font-weight:700;color:#1B2A5C;margin:20px 0 8px">MRR milestones</div>${mrrT}`;
+
+document.getElementById('tRoadmap').innerHTML=
+  `<div class="rnote"><strong>Growth philosophy:</strong> Bookkeeping cleanup is the entry point. Monthly bookkeeping retainers are the recurring revenue engine. One service done exceptionally well — not three done adequately. Systems become more important than client count.</div>`+
+  rStageSummary()+
+  rSysM()+
+  PH.map(ph=>rPhase(ph)).join('');
+
+document.getElementById('tDashboard').innerHTML=rDashboard();
+
 upStats();
 
 // ── PWA INSTALL ────────────────────────────────────────────────────────────
@@ -708,7 +914,7 @@ document.getElementById('installBtn').addEventListener('click',async()=>{
 });
 window.addEventListener('appinstalled',()=>{document.getElementById('ibanner').style.display='none';});
 
-// ── REGISTER SERVICE WORKER ────────────────────────────────────────────────
+// ── SERVICE WORKER ─────────────────────────────────────────────────────────
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./sw.js',{scope:'./'})
